@@ -54,14 +54,9 @@
 - **id_equipamento (PK para Equipamento)**: Identificador único do equipamento.
 - **id_peça** (PK para Peças): Identificador único da peça.
 
-#### 6. Ficha Tecnica (ficha_tecnica)
-- **id_ficha_tecnica** (PK): Indenfificador único da ficha tecnica.
-- **id_manutencao** (FK para Manutenção) : FK para manutenção.
-
-#### 7. Ficha Tecnica Item (ficha_tecnica_item)
-- **id_ficha_tecnica_item** (PK): Identificar único da ficha técnica item.
-- **id_ficha_tenica** (FK): FK para ficha técnica
-- **id_peca** (FK): Fk para peça
+#### 6. Ficha Tecnica Item (ficha_tecnica_item)
+- **id_equipamento** (PK): PK para equipamento
+- **id_peca** (PK): Pk para peça
 - **quantidade**: Quantidade de peças utilizadas.
 
 #### 8. Estoque (estoque)

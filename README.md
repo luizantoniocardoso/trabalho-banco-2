@@ -1,90 +1,126 @@
 ### Diagrama Simplificado de Entidades e Relacionamentos
-
 - **Equipamentos (1)** ---- **(M) Manutenções**
-- **Equipamentos (1)** ---- **(1) Modelo**
 - **Equipamentos (M)** ---- **(1) Localizações**
-- **Tipos de Manutenção (1)** ---- **(M) Manutenções**
-- **Técnicos (1)** ---- **(M) Manutenções**
-- **Manutenções (1)** ---- **(M) Histórico de Manutenção**
-- **Peças de Reposição (1)** ---- **(M) Manutenções**
-- **Peças de Reposição (M)** ---- **(1) Localizações**
-- **Manutenções (M)** ---- **(M) Técnicos**
-- **Manutenções (M)** ---- **(M) Peças de Reposição**
+- **Equipamentos (M)** ---- **(1) Categoria**
+- **Manutenções (M)** ---- **(1) Equipamentos**
+- **Técnicos (M)** ---- **(1) especialização**
+- **Técnicos em Manutenção (M)** ---- **(M) Técnicos**
+- **Técnicos em Manutenção (M)** ---- **(M) Manutenções**
+- **Técnicos em Manutenção (M)** ---- **(1) Papel**
+- **Equipamentos e Peças (M)** ---- **(1) Equipamentos**
+- **Equipamentos e Peças (M)** ---- **(1) Peças**
+- **Ficha Tecnica (1)** ---- **(1) Manutenção**
+- **Ficha Tecnica Item (M)** ---- **(1) Peças**
+- **Ficha Tecnica Item (M)** ---- **(1) Ficha Tecnica **
+- **Estoque (1)** ---- **(1) Items**
+- **Peças (M)** ---- **(1) Localizações**
+- **Ferramentas (M)** ---- **(1) Localizações**
 
 ### Tabelas Principais
 
-#### 1. Equipamentos (Equipments)
-- **equipment_id (PK)**: Identificador único do equipamento.
-- **name**: Nome do equipamento.
-- **description**: Descrição do equipamento.
-- **id_model**: Modelo do equipamento.
-- **id_categoria_item**: Categoria do equipamento.
-- **serial_number**: Número de série.
-- **purchase_date**: Data de aquisição.
-- **id_location**: Localização do equipamento.
+#### 1. Equipamentos
+- **id_equipamento (PK)**: Identificador único do equipamento.
+- **nome**: Nome do equipamento.
+- **descrição**: Descrição do equipamento.
+- **id_modelo**: Modelo do equipamento.
+- **id_categoria**: Categoria do equipamento.
+- **número_de_série**: Número de série.
+- **data_de_aquisição**: Data de aquisição.
+- **id_localização**: Localização do equipamento.
 
-#### 2. Manutenções (Maintenances)
-- **maintenance_id (PK)**: Identificador único da manutenção.
-- **equipment_id (FK para Equipamentos)**: Referência ao equipamento.
-- **maintenance_type_id (FK para Tipos de Manutenção)**: Referência ao tipo de manutenção.
-- **scheduled_date**: Data agendada para a manutenção.
-- **completion_date**: Data de conclusão da manutenção.
+#### 2. Manutenções
+- **id_manutenção (PK)**: Identificador único da manutenção.
+- **id_equipamento (FK para Equipamentos)**: Referência ao equipamento.
+- **data_inicio**: Data do inicio da manutenção.
+- **data_de_conclusão**: Data de conclusão da manutenção.
 - **status**: Status da manutenção (e.g., pendente, concluída, cancelada).
-- **description**: Descrição detalhada da manutenção realizada.
-- **type_name**: Nome do tipo de manutenção (e.g., preventiva, corretiva).
+- **descrição**: Descrição detalhada da manutenção realizada.
+- **nome_tipo**: Nome do tipo de manutenção (e.g., preventiva, corretiva).
 
-#### 3. Técnicos (Technicians)
-- **technician_id (PK)**: Identificador único do técnico.
-- **name**: Nome do técnico.
-- **tel**: Informações de contato do técnico pelo telefone.
+#### 3. Técnicos
+- **id_técnico (PK)**: Identificador único do técnico.
+- **nome**: Nome do técnico.
+- **telefone**: Informações de contato do técnico.
 - **cpf**: Código identificador de pessoa física.
-- **data_nascimento**: Data de nascimento do técnico.
-- **specialization_id (FK para Especialização)**: Especialização do técnico.
+- **data_de_nascimento**: Data de nascimento do técnico.
+- **id_especialização (FK para Especialização)**: Especialização do técnico.
 
-#### 4. Técnicos em Manutenção (MaintenanceTechnicians)
-- **maintenance_id (FK para Manutenções)**: Referência à manutenção.
-- **technician_id (FK para Técnicos)**: Referência ao técnico.
-- **role_id (FK para Papeis)**: Papel do técnico na manutenção.
+#### 4. Técnicos em Manutenção
+- **id_manutenção (FK para Manutenções)**: Referência à manutenção.
+- **id_técnico (FK para Técnicos)**: Referência ao técnico.
+- **id_papel (FK para Papéis)**: Papel do técnico na manutenção.
 
-#### 5. Tabela de muitos para muitos de peças e equipamentos (equipments_parts)
-- **equipments_id**: Identificador único do equipamento.
-- **parts_id**: Identificador único da peça.
+#### 5. Equipamentos e Peças (equipamentos_peças)
+- **id_equipamento (PK para Equipamento)**: Identificador único do equipamento.
+- **id_peça** (PK para Peças): Identificador único da peça.
 
-#### 6. Peças (parts)
-- **part_id (PK)**: Identificador único da peça.
-- **name**: Nome da peça.
-- **description**: Descrição da peça.
-- **quantity**: Quantidade em estoque.
-- **id_location**: Localização do estoque.
+#### 6. Ficha Tecnica (ficha_tecnica)
+- **id_ficha_tecnica** (PK): Indenfificador único da ficha tecnica.
+- **id_manutencao** (FK para Manutenção) : FK para manutenção.
 
-#### 7. Ferramentas (tools)
-- **tools_id (PK)**: Identificador único da ferramenta.
-- **name**: Nome da ferramenta.
-- **quantity**: Quantidade de ferramentas em estoque.
-- **description**: Descrição da ferramenta.
+#### 7. Ficha Tecnica Item (ficha_tecnica_item)
+- **id_ficha_tecnica_item** (PK): Identificar único da ficha técnica item.
+- **id_ficha_tenica** (FK): FK para ficha técnica
+- **id_peca** (FK): Fk para peça
+- **quantidade**: Quantidade de peças utilizadas.
 
-#### 8. Peças Utilizadas em Manutenções (MaintenanceParts)
-- **maintenance_id (FK para Manutenções)**: Referência à manutenção.
-- **part_id (FK para Peças de Reposição)**: Referência à peça de reposição.
-- **quantity_used**: Quantidade utilizada na manutenção.
+#### 8. Estoque (estoque)
+- **id_estoque**: Indentificador unico do estoque.
+- **id_item**: indentificador generico de peças, ferramentas, equipamentos.
+- **tipo_item**: Enum( peças, ferramenta, equipamento).
+- **quantidade**: quantidade referente aos items em estoque. 
 
-#### 9. Localizações (locations)
-- **location_id (PK)**: Identificador único das localizações.
-- **name**: Nome da localização.
+#### 9. Peças
+- **id_peça (PK)**: Identificador único da peça.
+- **nome**: Nome da peça.
+- **descrição**: Descrição da peça.
+- **quantidade**: Quantidade em estoque.
+- **id_localização**: Localização do estoque.
 
-#### 10. Categoria dos Itens (item_category)
-- **category_id (PK)**: Identificador único das categorias.
-- **name**: Nome da categoria.
-- **description**: Descrição da categoria.
+#### 10. Ferramentas
+- **id_ferramenta (PK)**: Identificador único da ferramenta.
+- **nome**: Nome da ferramenta.
+- **quantidade**: Quantidade de ferramentas em estoque.
+- **descrição**: Descrição da ferramenta.
+- **id_localizacao**: localização no estoque
 
-#### 11. Papéis do Técnico (roles)
-- **role_id (PK)**: Identificador de papéis dos técnicos.
-- **name**: Nome do papel do técnico.
-- **description**: Descrição do papel.
+#### 11. Localizações
+- **id_localização (PK)**: Identificador único das localizações.
+- **nome**: Nome da localização.
+          
+#### 12. Categoria dos Itens
+- **id_categoria (PK)**: Identificador único das categorias.
+- **nome**: Nome da categoria.
+- **descrição**: Descrição da categoria.
+
+#### 13. Papéis dos Técnicos (Papel)
+- **id_papel (PK)**: Identificador de papéis dos técnicos.
+- **nome**: Nome do papel do técnico.
+- **descrição**: Descrição do papel.
+
+#### 14. Modelo do equipamento (modelo)
+- **id_modelo (PK)**: Identificador de modelo.
+- **nome**: Nome do modelo.
+- **descrição**: Descrição do modelo.
+
+#### 15. Categoria do item (categoria)
+- **id_categoria (PK)**: Identificador da Categoria.
+- **nome**: Nome da Categoria.
+- **descrição**: Descrição da Categoria.
+
+#### 16. especialização (especializacao)
+- **id_especialização (PK)**: Identificador da especialização.
+- **nome**: Nome da especialização.
+- **descrição**: Descrição da especialização.
 
 ### Relacionamentos
 
 - Cada **Equipamento** pode ter várias **Manutenções**.
+- Cada **Equipamento** está localizado em uma **Localização**.
 - Cada **Manutenção** é de um tipo específico definido em **Tipos de Manutenção**.
-- Cada **Manutenção** pode envolver vários **Técnicos** e utilizar várias **Peças de Reposição**.
-- O **Histórico de Manutenção** armazena eventos importantes para cada manutenção, permitindo rastrear mudanças e atualizações.
+- Cada **Manutenção** pode envolver vários **Técnicos**.
+- Cada **Manutenção** pode ter um **Histórico de Manutenção**.
+- Cada **Manutenção** pode utilizar várias **Peças de Reposição**.
+- Cada **Peça de Reposição** está localizada em uma **Localização**.
+- **Manutenções** e **Técnicos** possuem uma relação muitos para muitos através da tabela **Técnicos em Manutenção**.
+- **Manutenções** e **Peças de Reposição** possuem uma relação muitos para muitos através da tabela **Peças Utilizadas em Manutenções**.

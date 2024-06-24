@@ -3,19 +3,19 @@ import { tab } from "../Interfaces";
 export const TABS: tab[] = [
     {
       label: "Equipamentos",
-      value: "equipamentos",
+      value: "Equipamentos",
     },
     {
       label: "Categorias",
-      value: "categorias",
+      value: "Categorias",
     },
     {
       label: "Modelos",
-      value: "modelos",
+      value: "Modelos",
     },
     {
       label: "Localizações",
-      value: "localizacoes",
+      value: "Localizacoes",
     },
   ] ;
    

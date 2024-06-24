@@ -1,8 +1,8 @@
 
 
-const port = 3000;
+const port = 7097;
 
 
 export const config  = {
-    localHost: `http://localhost:${port}/`,
+    localHost: `https://localhost:${port}/api`,
 } 

@@ -10,6 +10,7 @@ import { Modal } from "../Modal";
 import { Forms } from "../Forms";
 import { FormsTitle } from "../Forms/FormsTitle";
 import { FormsInput } from "../Forms/FormsInput";
+import { FormsSelect } from "../Forms";
 import { config } from "../../Enviroment";
 
 export function Table() {
@@ -28,6 +29,12 @@ export function Table() {
 
   const [pagAtual, setPagAtual] = useState(1);
   const [pagMax, setPagMax] = useState(1);
+
+  const [formData, setFormData] = useState<any>({});
+
+  const [models, setModels] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [locations, setLocations] = useState<any[]>([]);
 
   const fetchEquipamentos = async () => {
     const response = await fetch(`${config.localHost}/Equipamentos`);
@@ -61,7 +68,19 @@ export function Table() {
       },
       body: JSON.stringify(data),
     });
-  }
+  };
+
+  const updateItem = async (id: string, valueTab: string, data: any) => {
+    delete data.id;
+
+    await fetch(`${config.localHost}/${valueTab}/Update/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+  };
 
   const deleteItem = async (id: string, valueTab: string) => {
     await fetch(`${config.localHost}/${valueTab}/Delete/${id}`, {
@@ -92,8 +111,6 @@ export function Table() {
     setPagAtual(1);
     setPagMax(getPaginations(fetchedData));
     setTableRowPag(fetchedData, 1);
-
-    console.log(valueTab)
   }, [valueTab]);
 
   useEffect(() => {
@@ -105,6 +122,20 @@ export function Table() {
       setTableRowPag(data, pagAtual);
     }
   }, [pagAtual, data]);
+
+  useEffect(() => {
+    const fetchDropdownData = async () => {
+      const modelsData = await fetchModelos();
+      const categoriesData = await fetchCategorias();
+      const locationsData = await fetchLocalizacoes();
+      setModels(modelsData);
+      setCategories(categoriesData);
+      setLocations(locationsData);
+    };
+    if (openModalAdd || openModalEdit) {
+      fetchDropdownData();
+    }
+  }, [openModalAdd, openModalEdit]);
 
   const getPaginations = (data: any[]) => {
     const dataLength = data?.length || 0;
@@ -121,43 +152,67 @@ export function Table() {
     setTableRow(dataPag);
   };
 
-  const onClickAddButton = () => setOpenModalAdd(true);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+
+    console.log(name, value);
+
+    setFormData((prevData: any) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const onClickAddButton = () => {
+    setFormData({});
+    setOpenModalAdd(true);
+  };
   const prevPagHandler = () => (pagAtual > 1 ? setPagAtual(pagAtual - 1) : null);
   const proxPagHandler = () => (pagAtual < pagMax ? setPagAtual(pagAtual + 1) : null);
   const onClickTab = (e: React.MouseEvent<HTMLButtonElement>) =>
     setValueTab(e?.currentTarget?.dataset?.value as string);
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value as string);
-  const handleSearchButton = () => {
-    // Implement search logic here
-    console.log(search);
+  
+  const handleSearchButton = async () => {
+    const response = await fetch(`${config.localHost}/${valueTab}?nome=${search}`);
+
+    const data = await response.json();
+
+    setData(data.conteudo);
   };
   const onClickEdit = (id: any) => {
     setOpenModalEdit(true);
     setDataEdit(data.find((item) => item.id === id));
+    setFormData(data.find((item) => item.id === id) || {});
   };
   const onClickDelete = (id: any) => {
     setOpenDelete(true);
     setDataDelete(data.find((item) => item.id === id));
   };
 
-  const onConfirmActionDelete = (objectToDelete: any) => {
+  const onConfirmActionDelete = async (objectToDelete: any) => {
     setOpenDelete(false);
-
-    deleteItem(objectToDelete, valueTab);
+    await deleteItem(objectToDelete, valueTab);
     fetchData();
   };
+
   const onConfirmActionAdd = async () => {
     setOpenModalAdd(false);
-
-    
-
+    await postItem(valueTab, formData);
+    fetchData();
     console.log("Adicionado com sucesso");
+  };
+
+  const onConfirmActionEdit = async () => {
+    setOpenModalEdit(false);
+    await updateItem(dataEdit.id, valueTab, formData);
+    fetchData();
+    console.log("Atualizado com sucesso");
   };
 
   if (data.length === 0) {
     return <div>Carregando...</div>;
-  }
-
+  };
   return (
     <>
       <Card className="h-full w-full" placeholder={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
@@ -198,14 +253,33 @@ export function Table() {
           <FormsTitle description={`Adicionar novo Item na tabela ${valueTab}`} />
           <div className="flex flex-col gap-6">
             {Object.keys(data[0] || {}).map((key) => {
-              if (key === "id") return null;
-              return <FormsInput key={key} title={key} placeholder={`Digite o ${key}`} type="text" />;
+              if (key === "id" || key === "categoria" || key === "modelo" || key === "localizacao") return null;
+              if (key === "dataAquisicao") {
+                return <FormsInput key={key} name={key} title={key} placeholder={`Digite o ${key}`} type="date" onChangeAction={handleChange} />;
+              }
+              return (
+                <FormsInput
+                  key={key}
+                  name={key}
+                  title={key}
+                  placeholder={`Digite o ${key}`}
+                  type="text"
+                  onChangeAction={handleChange}
+                />
+              );
             })}
+            {valueTab === "Equipamentos" ? (
+              <>
+                <FormsSelect name="modeloId" title="Modelo" options={models} value={formData.modeloId || ""} onChangeAction={handleChange} />
+                <FormsSelect name="categoriaId" title="Categoria" options={categories} value={formData.categoriaId || ""} onChangeAction={handleChange} />
+                <FormsSelect name="localizacaoId" title="Localização" options={locations} value={formData.localizacaoId || ""} onChangeAction={handleChange} />
+              </>
+            ) : null}
           </div>
         </Forms>
       </Modal>
       <Modal
-        onConfirmAction={onConfirmActionAdd}
+        onConfirmAction={onConfirmActionEdit}
         open={openModalEdit}
         setOpen={setOpenModalEdit}
         title={`Editar o item ${dataEdit.nome}`}
@@ -213,18 +287,40 @@ export function Table() {
         <Forms>
           <FormsTitle description={`Editar o Item na tabela ${valueTab}`} />
           <div className="flex flex-col gap-6">
-            {Object.keys(data[0] || {}).map((key) => {
-              if (key === "id") return null;
+            {Object.keys(dataEdit || {}).map((key) => {
+              if (key === "id" || key === "categoria" || key === "modelo" || key === "localizacao") return null;
+              if (key === "dataAquisicao") {
+                return (
+                  <FormsInput
+                    key={key}
+                    name={key}
+                    title={key}
+                    placeholder={`Digite o ${key}`}
+                    type="date"
+                    value={formData[key] || ""}
+                    onChangeAction={handleChange}
+                  />
+                );
+              }
               return (
                 <FormsInput
                   key={key}
+                  name={key}
                   title={key}
                   placeholder={`Digite o ${key}`}
                   type="text"
-                  value={dataEdit[key] || ""}
+                  value={formData[key] || ""}
+                  onChangeAction={handleChange}
                 />
               );
             })}
+            {valueTab === "Equipamentos" ? (
+              <>
+                <FormsSelect name="modeloId" title="Modelo" options={models} value={formData.modeloId || ""} onChangeAction={handleChange} />
+                <FormsSelect name="categoriaId" title="Categoria" options={categories} value={formData.categoriaId || ""} onChangeAction={handleChange} />
+                <FormsSelect name="localizacaoId" title="Localização" options={locations} value={formData.localizacaoId || ""} onChangeAction={handleChange} />
+              </>
+            ) : null}
           </div>
         </Forms>
       </Modal>

@@ -21,6 +21,7 @@ export function Table() {
   const [ search, setSearch ] = useState("");
 
   const [ dataEdit, setDataEdit ] = useState( {} as any);
+  const [ dataDelete, setDataDelete ] = useState( {} as any);
 
   const [ data, setData] = useState<any[]>(MOKEGERAL.equipamentos);
   const [ tableRow, setTableRow ] = useState<any[]>(data.slice(5));
@@ -122,12 +123,14 @@ export function Table() {
     setDataEdit(data.find((item) => item.id === id));
     console.log(dataEdit);
   }
+  const onClickDelete = (id: any) => {
+    setOpenDelete(true);
+    setDataDelete(data.find((item) => item.id === id));
+  }
 
   const onConfirmActionDelete = (id:any) => {
     setOpenDelete(false);
-   
     console.log("Deletado com sucesso", 'id:', id);
-  
   };
   const onConfirmActionAdd = async () => {
     setOpenModalAdd(false);
@@ -149,11 +152,12 @@ export function Table() {
         tableRow={tableRow}
         setDialog={setOpenDelete}
         onClickEdit={onClickEdit}
+        onClickDelete={onClickDelete}
         />
         <FooterTable pagAtual={pagAtual} PrevPagHandler={prevPagHandler} pagMax={pagMax} proxPagHandler={proxPagHandler}/>
       </Card>
       {/* dialog de delite função pra deletar e onConfirmActionDelete */}
-      <DialogDefault open={openDelete} setOpen={setOpenDelete} onConfirmAction={onConfirmActionDelete}/> 
+      <DialogDefault open={openDelete} setOpen={setOpenDelete} onConfirmAction={onConfirmActionDelete} objectToDelete={dataDelete}/> 
       {/* modal de adicionar item função para adicionar e onConfirmActionAdd*/}
       <Modal onConfirmAction={onConfirmActionAdd} open={openModalAdd} setOpen={setOpenModalAdd} title="Adicionar item" >
         <Forms>

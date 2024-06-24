@@ -10,9 +10,10 @@ interface BodyTableProps {
     tableRow: any[];
     setDialog: React.Dispatch<React.SetStateAction<boolean>>;
     onClickEdit: (id: any) => void;
+    onClickDelete: (id: any) => void;
 }
 
-export const BodyTable = ({ tableRow, setDialog, onClickEdit } : BodyTableProps) => {    
+export const BodyTable = ({ tableRow, onClickEdit, onClickDelete } : BodyTableProps) => {    
     const [table, setTable] = useState<any[]>(tableRow);
     const [head, setHead] = useState<tableHead>([]);
 
@@ -44,9 +45,7 @@ export const BodyTable = ({ tableRow, setDialog, onClickEdit } : BodyTableProps)
       setHead(columns);
     }, [tableRow]);
 
-    const onClickDelete = () => {
-      setDialog(true);
-    }
+    
 
     return (
       <CardBody className="overflow-scroll px-0" placeholder={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
@@ -97,7 +96,7 @@ export const BodyTable = ({ tableRow, setDialog, onClickEdit } : BodyTableProps)
                           <Tooltip content="Excluir">
                             {
                               object.id ? 
-                              <IconButton variant="text" onClick={onClickDelete} placeholder={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
+                              <IconButton variant="text" onClick={() => onClickDelete(object.id)} placeholder={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
                                 <TrashIcon className="h-4 w-4" />
                               </IconButton>
                             :

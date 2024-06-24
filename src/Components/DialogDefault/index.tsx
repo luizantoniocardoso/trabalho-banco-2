@@ -13,9 +13,10 @@ interface DialogDefaultProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   onConfirmAction: any;
+  objectToDelete: any;
 }
 
-export function DialogDefault({ open, setOpen, onConfirmAction}: DialogDefaultProps) {
+export function DialogDefault({ open, setOpen, onConfirmAction, objectToDelete}: DialogDefaultProps) {
   
 
   const title = "Excluir item";
@@ -35,7 +36,7 @@ export function DialogDefault({ open, setOpen, onConfirmAction}: DialogDefaultPr
             className="mr-1" placeholder={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
             <span>Cancelar</span>
           </Button>
-          <Button variant="gradient" color="green" onClick={onConfirmAction} placeholder={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
+          <Button variant="gradient" color="green" onClick={() => onConfirmAction(objectToDelete)} placeholder={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
             <span>Confirmar</span>
           </Button>
         </DialogFooter>

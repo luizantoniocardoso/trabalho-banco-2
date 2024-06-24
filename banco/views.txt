@@ -1,0 +1,78 @@
+-- Criação de views
+
+CREATE VIEW vw_equipamentos_completos AS
+SELECT 
+    e.id AS equipamento_id,
+    e.nome AS equipamento_nome,
+    e.descricao AS equipamento_descricao,
+    e.numero_de_serie,
+    e.data_aquisicao,
+    c.nome AS categoria_nome,
+    m.nome AS modelo_nome,
+    l.nome AS localizacao_nome
+FROM 
+    equipamentos e
+JOIN 
+    categorias c ON e.categoria_id = c.id
+JOIN 
+    modelos m ON e.modelo_id = m.id
+JOIN 
+    localizacoes l ON e.localizacao_id = l.id;
+
+CREATE VIEW vw_manutencoes_concluidas AS
+SELECT 
+    m.id AS manutencao_id,
+    m.nome AS manutencao_nome,
+    m.descricao AS manutencao_descricao,
+    m.data_inicio,
+    m.data_conclusao,
+    m.tipo_manutencao,
+    e.nome AS equipamento_nome,
+    t.nome AS tecnico_nome
+FROM 
+    manutencoes m
+JOIN 
+    equipamentos e ON m.equipamento_id = e.id
+JOIN 
+    ordens_servicos os ON m.id = os.manutencao_id
+JOIN 
+    tecnicos t ON os.tecnico_id = t.id
+WHERE 
+    m.status = 'Concluido';
+
+CREATE VIEW vw_equipamentos_por_categoria AS
+SELECT 
+    c.nome AS categoria_nome,
+    COUNT(e.id) AS quantidade_equipamentos
+FROM 
+    categorias c
+LEFT JOIN 
+    equipamentos e ON e.categoria_id = c.id
+GROUP BY 
+    c.nome;
+
+CREATE VIEW vw_tecnicos_especializacoes AS
+SELECT 
+    t.id AS tecnico_id,
+    t.nome AS tecnico_nome,
+    t.telefone,
+    t.cpf,
+    t.data_nascimento,
+    e.nome AS especializacao_nome
+FROM 
+    tecnicos t
+JOIN 
+    especializacoes e ON t.especializacao_id = e.id;
+
+CREATE VIEW vw_pecas_usadas_por_manutencao AS
+SELECT 
+    m.id AS manutencao_id,
+    m.nome AS manutencao_nome,
+    p.nome AS peca_nome,
+    pu.quantidade
+FROM 
+    manutencoes m
+JOIN 
+    pecas_usadas pu ON m.id = pu.manutencao_id
+JOIN 
+    pecas p ON pu.peca_id = p.id;

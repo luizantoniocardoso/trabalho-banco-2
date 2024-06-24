@@ -1,0 +1,40 @@
+-- Consultas baseadas em regras de negócio
+
+-- 1. Quantos equipamentos não estão com o cadastro completo? (sem nenhuma coluna como null)
+SELECT COUNT(*) AS equipamentos_incompletos
+FROM equipamentos
+WHERE nome IS NULL 
+   OR descricao IS NULL
+   OR numero_de_serie IS NULL
+   OR data_aquisicao IS NULL
+   OR modelo_id IS NULL
+   OR localizacao_id IS NULL
+   OR categoria_id IS NULL;
+
+-- 2. Quais técnicos têm mais de 5 manutenções atribuídas?
+SELECT t.id, t.nome, COUNT(m.id) AS total_manutencoes
+FROM tecnicos t
+JOIN ordens_servicos os ON t.id = os.tecnico_id
+JOIN manutencoes m ON os.manutencao_id = m.id
+GROUP BY t.id, t.nome
+HAVING COUNT(m.id) > 5;
+
+-- 3. Equipamentos que tiveram manutenção nos últimos 30 dias
+SELECT e.id, e.nome, m.data_inicio, m.data_conclusao
+FROM equipamentos e
+JOIN manutencoes m ON e.id = m.equipamento_id
+WHERE m.data_inicio >= CURRENT_DATE - INTERVAL '30 days';
+
+-- 4. Manutenções que utilizaram mais de 10 peças
+SELECT m.id, m.nome, SUM(pu.quantidade) AS total_pecas
+FROM manutencoes m
+JOIN pecas_usadas pu ON m.id = pu.manutencao_id
+GROUP BY m.id, m.nome
+HAVING SUM(pu.quantidade) > 10;
+
+-- 5. Especializações que possuem mais de 3 técnicos
+SELECT e.id, e.nome, COUNT(t.id) AS total_tecnicos
+FROM especializacoes e
+JOIN tecnicos t ON e.id = t.especializacao_id
+GROUP BY e.id, e.nome
+HAVING COUNT(t.id) > 3;

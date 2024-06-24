@@ -1,0 +1,56 @@
+-- Function para calcular a idade do técnico com base na data de nascimento
+CREATE OR REPLACE FUNCTION calcular_idade_tecnico(tecnico_id UUID)
+RETURNS INT AS $$
+DECLARE
+    idade INT;
+BEGIN
+    SELECT EXTRACT(YEAR FROM AGE(data_nascimento)) INTO idade
+    FROM tecnicos
+    WHERE id = tecnico_id;
+
+    RETURN idade;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Function para listar os equipamentos que estão em manutenção
+CREATE OR REPLACE FUNCTION equipamento_em_manutencao(equip_id UUID)
+RETURNS BOOLEAN AS $$
+DECLARE
+    em_manutencao BOOLEAN;
+BEGIN
+    SELECT EXISTS (
+        SELECT 1 
+        FROM manutencoes 
+        WHERE equipamento_id = equip_id AND status IN ('EmAndamento', 'Agendado')
+    ) INTO em_manutencao;
+
+    RETURN em_manutencao;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Function para listar o total de peças utilizadas em uma manutenção
+CREATE OR REPLACE FUNCTION total_pecas_usadas(manut_id UUID)
+RETURNS INT AS $$
+DECLARE
+    total INT;
+BEGIN
+    SELECT SUM(quantidade) INTO total
+    FROM pecas_usadas
+    WHERE manutencao_id = manut_id;
+
+    RETURN COALESCE(total, 0);
+END;
+$$ LANGUAGE plpgsql;
+
+-- Function para atualizar o total de manutencoes
+CREATE OR REPLACE FUNCTION atualizar_total_manutencoes_concluidas()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.status = 'Concluido' THEN
+        UPDATE equipamentos 
+        SET total_manutencoes = total_manutencoes + 1
+        WHERE id = NEW.equipamento_id;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;

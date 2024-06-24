@@ -1,0 +1,19 @@
+-- Function para atualizar o total de manutencoes
+CREATE OR REPLACE FUNCTION atualizar_total_manutencoes_concluidas()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.status = 'Concluido' THEN
+        UPDATE equipamentos 
+        SET total_manutencoes = total_manutencoes + 1
+        WHERE id = NEW.equipamento_id;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger para escutar
+
+CREATE TRIGGER trg_atualizar_total_manutencoes_concluidas
+AFTER UPDATE ON manutencoes
+FOR EACH ROW
+EXECUTE FUNCTION atualizar_total_manutencoes_concluidas();
